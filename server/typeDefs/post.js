@@ -20,8 +20,14 @@ module.exports = gql`
     allPosts: [Post!]!
   }
 
+  # questo mi aiuta a scrivere poi su mutations gli input
+  input PostInput {
+    title: String!
+    description: String!
+  }
+
   # mutations
   type Mutation {
-    newPost(title: String!, description: String!): Post!
+    newPost(input: PostInput!): Post!
   }
 `;

@@ -8,12 +8,12 @@ const totalPosts = () => posts.length;
 const allPosts = () => posts;
 
 // mutations.
-// per args ovviamente puoi usare object destructur
+// per args ovviamente puoi usare object destructur o spread operator { id: posts.length +1 ...args.input}
 const newPost = (parent, args) => {
   const post = {
     id: posts.length + 1,
-    title: args.title,
-    description: args.description,
+    title: args.input.title,
+    description: args.input.description,
   };
   // push the new post
   posts.push(post);

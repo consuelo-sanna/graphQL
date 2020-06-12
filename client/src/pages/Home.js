@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import ApolloClient from "apollo-boost";
 import { gql } from "apollo-boost";
 import { useQuery, useLazyQuery } from "@apollo/react-hooks";
+import { AuthContext } from "../context/authContext";
+import { useHistory } from "react-router-dom";
 
 const GET_ALL_POSTS = gql`
   {
@@ -16,12 +18,25 @@ const GET_ALL_POSTS = gql`
 const Home = () => {
   const { data, loading, error } = useQuery(GET_ALL_POSTS);
 
+  // access Context
+  const { state, dispatch } = useContext(AuthContext);
+
+  // react router
+  let history = useHistory();
+
   // useLazyQuery is a hook that returns a function and some data in an object
   // when use more than one useQuery, they always return in the same variables.. so u can change those name
   const [
     fetchPosts,
     { data: postsData, loading: loadingDataPosts, error: errorPosts },
   ] = useLazyQuery(GET_ALL_POSTS);
+
+  const updateUserName = () => {
+    dispatch({
+      type: "LOGGED_IN_USER",
+      payload: "Consuelo Sanna",
+    });
+  };
 
   if (loading) return <p className="p-5"> Loading</p>;
 
@@ -51,6 +66,15 @@ const Home = () => {
       </button>
       <hr />
       {JSON.stringify(postsData)}
+      <hr />
+      {JSON.stringify(state.user)}
+      <hr />
+      <button className="btn btn-primary" onClick={updateUserName}>
+        Change user name
+      </button>
+      <hr />
+      {JSON.stringify(history)}
+      <hr />
     </div>
   );
 };

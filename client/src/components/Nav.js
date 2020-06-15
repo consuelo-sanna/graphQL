@@ -1,7 +1,23 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { auth } from "firebase";
+import { AuthContext } from "../context/authContext";
 
 const Nav = () => {
+  const { state, dispatch } = useContext(AuthContext);
+  const history = useHistory();
+
+  const { user } = state;
+
+  const logout = () => {
+    auth().signOut();
+    dispatch({
+      type: "LOGGED_IN_USER",
+      payload: null,
+    });
+    history.push("/login");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <Link className="navbar-brand" to="/">
@@ -31,6 +47,14 @@ const Nav = () => {
               Register
             </Link>
           </li>
+          {user && (
+            <li className="nav-item">
+              <a href="/login" onClick={logout} className="nav-item nav-link">
+                {" "}
+                Logout
+              </a>
+            </li>
+          )}
         </ul>
         <form className="form-inline my-2 my-lg-0">
           <input

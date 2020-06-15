@@ -9,6 +9,7 @@ import { ToastContainer } from "react-toastify";
 import Nav from "./components/Nav";
 import Home from "./pages/Home";
 import Register from "./pages/auth/Register";
+import CompleteRegistration from "./pages/auth/CompleteRegistration";
 import Login from "./pages/auth/Login";
 
 const client = new ApolloClient({
@@ -23,6 +24,11 @@ const App = () => {
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/register" component={Register} />
+        <Route
+          exact
+          path="/complete-registration"
+          component={CompleteRegistration}
+        />
         <Route exact path="/login" component={Login} />
       </Switch>
     </ApolloProvider>

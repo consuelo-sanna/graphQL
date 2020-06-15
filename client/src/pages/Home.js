@@ -17,19 +17,14 @@ const GET_ALL_POSTS = gql`
 
 const Home = () => {
   const { data, loading, error } = useQuery(GET_ALL_POSTS);
-
-  // access Context
-  const { state, dispatch } = useContext(AuthContext);
-
-  // react router
-  let history = useHistory();
-
   // useLazyQuery is a hook that returns a function and some data in an object
   // when use more than one useQuery, they always return in the same variables.. so u can change those name
-  const [
-    fetchPosts,
-    { data: postsData, loading: loadingDataPosts, error: errorPosts },
-  ] = useLazyQuery(GET_ALL_POSTS);
+
+  const [fetchPosts, { data: posts }] = useLazyQuery(GET_ALL_POSTS);
+  // access context
+  const { state, dispatch } = useContext(AuthContext);
+  // react router
+  let history = useHistory();
 
   const updateUserName = () => {
     dispatch({
@@ -38,7 +33,7 @@ const Home = () => {
     });
   };
 
-  if (loading) return <p className="p-5"> Loading</p>;
+  if (loading) return <p className="p-5">Loading...</p>;
 
   return (
     <div className="container p-5">
@@ -50,22 +45,22 @@ const Home = () => {
                 <div className="card-title">
                   <h4>{p.title}</h4>
                 </div>
-
-                <p className="card-text"> {p.description}</p>
+                <p className="card-text">{p.description}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
+      <div className="row p-5">
+        <button
+          onClick={() => fetchPosts()}
+          className="btn-btn-raised btn-primary"
+        >
+          Fetch posts
+        </button>
+      </div>
       <hr />
-      <button
-        onClick={() => fetchPosts()}
-        className="btn-btn-raised btn-primary"
-      >
-        Fetch posts
-      </button>
-      <hr />
-      {JSON.stringify(postsData)}
+      {JSON.stringify(posts)}
       <hr />
       {JSON.stringify(state.user)}
       <hr />
@@ -74,7 +69,6 @@ const Home = () => {
       </button>
       <hr />
       {JSON.stringify(history)}
-      <hr />
     </div>
   );
 };

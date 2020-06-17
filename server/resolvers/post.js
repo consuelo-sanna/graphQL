@@ -1,6 +1,7 @@
 const { gql } = require("apollo-server-express");
 const { authCheck } = require("../helpers/auth");
 const { posts } = require("../temp");
+const { DateTimeResolver } = require("graphql-scalars");
 
 // queries
 const totalPosts = () => posts.length;

@@ -44,7 +44,7 @@ const Login = () => {
           // send user info to our server mongodb to either update/create
           userCreate();
 
-          history.push("/");
+          history.push("/profile");
         });
     } catch (error) {
       console.log("login error", error);
@@ -66,7 +66,7 @@ const Login = () => {
       // send user info to our server mongodb to either update/create
       userCreate();
 
-      history.push("/");
+      history.push("/profile");
     });
   };
 
@@ -85,6 +85,9 @@ const Login = () => {
         handleSubmit={handleSubmit}
         showPasswordInput
       />
+      <Link className="text-danger float-right" to="/password/forgot">
+        Forgot Password
+      </Link>
     </div>
   );
 };

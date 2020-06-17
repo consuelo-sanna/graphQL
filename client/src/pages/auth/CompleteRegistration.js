@@ -56,7 +56,7 @@ const CompleteRegistration = () => {
         });
         // make api request to save/update user in mongoDB
         userCreate();
-        history.push("/");
+        history.push("/profile");
       }
     } catch (error) {
       console.log("register complete error ", error.message);

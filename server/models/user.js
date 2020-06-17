@@ -28,9 +28,9 @@ const userSchema = new mongoose.Schema(
           public_id: Date.now,
         },
       ],
-      about: {
-        type: String,
-      },
+    },
+    about: {
+      type: String,
     },
   },
   { timestamps: true }

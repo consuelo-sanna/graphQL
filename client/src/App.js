@@ -17,6 +17,7 @@ const App = () => {
   const { state } = useContext(AuthContext);
   const { user } = state;
 
+  // tutte le richieste fatte da questo client a gql hanno il token nell header
   const client = new ApolloClient({
     uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
     request: (operation) => {

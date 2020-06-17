@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       index: true,
+      unique: true,
     },
     name: {
       type: String,
@@ -17,13 +18,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       require: true,
       index: true,
+      unique: true,
     },
     images: {
       type: Array,
-      default: {
-        url: "https://via.placeholder.com/200x200.png?text=Profile",
-        public_id: "123",
-      },
+      default: [
+        {
+          url: "https://via.placeholder.com/200x200.png?text=Profile",
+          public_id: Date.now,
+        },
+      ],
       about: {
         type: String,
       },

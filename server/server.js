@@ -3,6 +3,7 @@ const { ApolloServer } = require("apollo-server-express");
 const http = require("http");
 const path = require("path");
 const mongoose = require("mongoose");
+const { authCheck } = require("./helpers/auth");
 
 require("dotenv").config();
 const {
@@ -44,6 +45,7 @@ const resolvers = mergeResolvers(
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ({ req, res }) => ({ req, res }),
 });
 
 // applyMiddleware method connects ApolloServer to a specific HTTP framework, like express
@@ -55,7 +57,7 @@ apolloServer.applyMiddleware({
 const httpServer = http.createServer(app);
 
 // rest endpoint. graphql si trova a /graphql
-app.get("/rest", function (req, res) {
+app.get("/rest", authCheck, function (req, res) {
   res.json({
     data: " you hit rest endpoint",
   });

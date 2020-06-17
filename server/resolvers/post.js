@@ -1,11 +1,14 @@
 const { gql } = require("apollo-server-express");
-
+const { authCheck } = require("../helpers/auth");
 const { posts } = require("../temp");
 
 // queries
 const totalPosts = () => posts.length;
 
-const allPosts = () => posts;
+const allPosts = async (parent, args, { req }) => {
+  await authCheck(req);
+  return posts;
+};
 
 // mutations.
 // per args ovviamente puoi usare object destructur o spread operator { id: posts.length +1 ...args.input}

@@ -1,12 +1,17 @@
-import React, { useState, useMemo, Fragment } from "react";
+import React, { useState, useMemo, Fragment, useContext } from "react";
 import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import omitDeep from "omit-deep"; /** package that can remove some data from mutations headers */
 import { PROFILE } from "../../gql/queries";
 import { USER_UPDATE } from "../../gql/mutations";
+import Resizer from "react-image-file-resizer";
+import axios from "axios";
+import { AuthContext } from "../../context/authContext";
 
 const Profile = () => {
+  const { state } = useContext(AuthContext);
+
   const [values, setValues] = useState({
     username: "",
     name: "",
@@ -55,7 +60,45 @@ const Profile = () => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = () => {};
+  const fileResizeAndUpload = (event) => {
+    let fileInput = false;
+    if (event.target.files[0]) {
+      fileInput = true;
+    }
+    if (fileInput) {
+      Resizer.imageFileResizer(
+        event.target.files[0],
+        300,
+        300,
+        "JPEG",
+        100,
+        0,
+        (uri) => {
+          // console.log(uri);
+          axios
+            .post(
+              `${process.env.REACT_APP_REST_ENDPOINT}/uploadimages`,
+              { image: uri },
+              {
+                headers: {
+                  authtoken: state.user.token,
+                },
+              }
+            )
+            .then((response) => {
+              setLoading(false);
+              console.log("response upload ", response);
+              setValues({ ...values, images: [...images, response.data] });
+            })
+            .catch((error) => {
+              setLoading(false);
+              console.log("CLOUDINARY UPLOAD FAILD ", error);
+            });
+        },
+        "base64"
+      );
+    }
+  };
 
   const profileUpdateForm = () => (
     <form onSubmit={handleSubmit}>
@@ -99,7 +142,7 @@ const Profile = () => {
           <input
             type="file"
             accept="image/*"
-            onChange={handleImageChange}
+            onChange={fileResizeAndUpload}
             className="form-control"
             placeholder="Image"
           />

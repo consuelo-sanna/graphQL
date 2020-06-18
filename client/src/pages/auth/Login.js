@@ -6,15 +6,7 @@ import { auth, googleAuthProvider } from "../../firebase";
 import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import AuthForm from "../../components/forms/AuthForm";
-
-const USER_CREATE = gql`
-  mutation userCreate {
-    userCreate {
-      username
-      email
-    }
-  }
-`;
+import { USER_CREATE } from "../../gql/mutations";
 
 const Login = () => {
   const { dispatch } = useContext(AuthContext);

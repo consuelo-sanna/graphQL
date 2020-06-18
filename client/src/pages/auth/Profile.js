@@ -3,43 +3,8 @@ import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 import omitDeep from "omit-deep"; /** package that can remove some data from mutations headers */
-
-const PROFILE = gql`
-  query {
-    profile {
-      _id
-      name
-      username
-      email
-      images {
-        url
-        public_id
-      }
-      about
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-// creo la query per la mutazione.
-const USER_UPDATE = gql`
-  mutation userUpdate($input: UserUpdateInput!) {
-    userUpdate(input: $input) {
-      _id
-      name
-      username
-      email
-      images {
-        url
-        public_id
-      }
-      about
-      createdAt
-      updatedAt
-    }
-  }
-`;
+import { PROFILE } from "../../gql/queries";
+import { USER_UPDATE } from "../../gql/mutations";
 
 const Profile = () => {
   const [values, setValues] = useState({

@@ -4,6 +4,9 @@ import { AuthContext } from "../../context/authContext";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import omitDeep from "omit-deep";
 import FileUpload from "../../components/FileUpload";
+import { POST_CREATE } from "../../gql/mutations";
+import { POSTS_BY_USER } from "../../gql/queries";
+import PostCard from "../../components/PostCard";
 
 const initialState = {
   content: "",
@@ -17,10 +20,25 @@ const Post = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
+  // query
+  const { data: posts } = useQuery(POSTS_BY_USER);
+
   const { content, image } = values;
 
-  const handleSubmit = () => {
-    //
+  // mutation
+  const [postCreate] = useMutation(POST_CREATE, {
+    // update cache
+    update: (data) => console.log("dati cache", data),
+    onError: (err) => console.log(err),
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    postCreate({ variables: { input: values } });
+    setValues(initialState);
+    setLoading(false);
+    toast.success("Post created!");
   };
 
   const handleChange = (e) => {
@@ -55,20 +73,27 @@ const Post = () => {
   return (
     <div className="container p-5">
       {loading ? <h4 className="text-danger">Loading...</h4> : <h4>Create</h4>}
+
+      <FileUpload
+        values={values}
+        setValues={setValues}
+        loading={loading}
+        setLoading={setLoading}
+        singleUpload
+      />
+
       <div className="row">
-        <div className="col-md-3">
-          <FileUpload
-            values={values}
-            setValues={setValues}
-            loading={loading}
-            setLoading={setLoading}
-            singleUpload
-          />
-        </div>
-        <div className="col-md-9">{createForm()}</div>
+        <div className="col">{createForm()}</div>
       </div>
       <hr />
-      {JSON.stringify(values.content)}
+      <div className="row p-5">
+        {posts &&
+          posts.postsByUser.map((post) => (
+            <div className="col-md-6 pt-5" key={post._id}>
+              <PostCard post={post} />
+            </div>
+          ))}
+      </div>
     </div>
   );
 };

@@ -11,7 +11,7 @@ const PrivateRoute = ({ ...rest }) => {
     if (state.user) {
       setUser(true);
     }
-  }, state.user);
+  }, [state.user]);
 
   const navLinks = () => (
     <nav>
@@ -45,6 +45,7 @@ const PrivateRoute = ({ ...rest }) => {
       </div>
     </div>
   );
+
   return user ? renderContent() : <LoadingToRedirect path="/login" />;
 };
 

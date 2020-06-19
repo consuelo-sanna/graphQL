@@ -27,8 +27,13 @@ const postCreate = async (parent, args, { req }) => {
 };
 
 const allPosts = async (parent, args) => {
+  const currentPage = args.page || 1;
+  const perPage = 3;
+
   return await Post.find({})
+    .skip((currentPage - 1) * perPage)
     .populate("postedBy", "username _id")
+    .limit(perPage)
     .sort({ createdAt: -1 })
     .exec();
 };
@@ -85,8 +90,13 @@ const postDelete = async (parent, args, { req }) => {
   return deletedPost;
 };
 
+const totalPosts = async (parent, args) => {
+  return await Post.find({}).estimatedDocumentCount().exec();
+};
+
 module.exports = {
   Query: {
+    totalPosts,
     allPosts,
     postsByUser,
     singlePost,

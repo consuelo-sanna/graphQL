@@ -1,5 +1,5 @@
-import { USER_INFO, POST_DATA } from "./fragments";
 import { gql } from "apollo-boost";
+import { USER_INFO, POST_DATA } from "./fragments";
 
 // creo la query per la mutazione.
 export const USER_UPDATE = gql`
@@ -35,4 +35,13 @@ export const POST_DELETE = gql`
       _id
     }
   }
+`;
+
+export const POST_UPDATE = gql`
+  mutation postUpdate($input: PostUpdateInput!) {
+    postUpdate(input: $input) {
+      ...postData
+    }
+  }
+  ${POST_DATA}
 `;

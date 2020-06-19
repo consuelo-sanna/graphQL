@@ -1,8 +1,7 @@
-import React, { useState, useContext, useEffect, Fragment } from "react";
+import React, { useState, useContext, useEffect, fragment } from "react";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import omitDeep from "omit-deep";
 import FileUpload from "../../components/FileUpload";
 import { POST_CREATE, POST_DELETE } from "../../gql/mutations";
 import { POSTS_BY_USER } from "../../gql/queries";
@@ -19,21 +18,21 @@ const initialState = {
 const Post = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
-
   // query
   const { data: posts } = useQuery(POSTS_BY_USER);
 
+  // destructure
   const { content, image } = values;
 
   // mutation
   const [postCreate] = useMutation(POST_CREATE, {
-    // read query from cache/ write query to cache
+    // read query from cache / write query to cache
     update: (cache, { data: { postCreate } }) => {
-      // first read
+      // read Query from cache
       const { postsByUser } = cache.readQuery({
         query: POSTS_BY_USER,
       });
-      // write query to cache
+      // write Query to cache
       cache.writeQuery({
         query: POSTS_BY_USER,
         data: {
@@ -41,16 +40,16 @@ const Post = () => {
         },
       });
     },
-    onError: (err) => console.log(err),
+    onError: (err) => console.log(err.graphqQLError[0].message),
   });
 
   const [postDelete] = useMutation(POST_DELETE, {
     update: ({ data }) => {
-      console.log("POST DELETE MUTATION data ", data);
+      console.log("POST DELETE MUTATION", data);
       toast.error("Post deleted");
     },
     onError: (err) => {
-      console.log("ERROR DELETING POST ", err);
+      console.log(err);
       toast.error("Post delete failed");
     },
   });
@@ -73,7 +72,7 @@ const Post = () => {
     postCreate({ variables: { input: values } });
     setValues(initialState);
     setLoading(false);
-    toast.success("Post created!");
+    toast.success("Post created");
   };
 
   const handleChange = (e) => {
@@ -88,13 +87,14 @@ const Post = () => {
           value={content}
           onChange={handleChange}
           name="content"
-          rows="10"
+          rows="5"
           className="md-textarea form-control"
           placeholder="Write something cool"
           maxLength="150"
           disabled={loading}
         ></textarea>
       </div>
+
       <button
         className="btn btn-primary"
         type="submit"
@@ -111,10 +111,10 @@ const Post = () => {
 
       <FileUpload
         values={values}
-        setValues={setValues}
         loading={loading}
+        setValues={setValues}
         setLoading={setLoading}
-        singleUpload
+        singleUpload={true}
       />
 
       <div className="row">
@@ -128,8 +128,8 @@ const Post = () => {
               <PostCard
                 post={post}
                 handleDelete={handleDelete}
-                showUpdateButton
-                showDeleteButton
+                showUpdateButton={true}
+                showDeleteButton={true}
               />
             </div>
           ))}

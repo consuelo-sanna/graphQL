@@ -1,5 +1,5 @@
 const express = require("express");
-const { ApolloServer } = require("apollo-server-express");
+const { ApolloServer, PubSub } = require("apollo-server-express");
 const http = require("http");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -7,6 +7,8 @@ const { authCheckMiddleware } = require("./helpers/auth");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const cloudinary = require("cloudinary");
+
+const pubsub = new PubSub();
 
 require("dotenv").config();
 const {
@@ -52,7 +54,7 @@ const resolvers = mergeResolvers(
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, res }) => ({ req, res }),
+  context: ({ req }) => ({ req, pubsub }),
 });
 
 // applyMiddleware method connects ApolloServer to a specific HTTP framework, like express
@@ -62,6 +64,7 @@ apolloServer.applyMiddleware({
 });
 
 const httpServer = http.createServer(app);
+apolloServer.installSubscriptionHandlers(httpServer);
 
 // rest endpoint. graphql si trova a /graphql
 app.get("/rest", authCheckMiddleware, function (req, res) {
@@ -105,9 +108,12 @@ app.post("/removeimage", authCheckMiddleware, (req, res) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
+httpServer.listen(process.env.PORT, () => {
   console.log(`server running at http://localhost:${process.env.PORT}`);
   console.log(
     `server running at http://localhost:${process.env.PORT}${apolloServer.graphqlPath}`
+  );
+  console.log(
+    `subscription is ready at http://localhost:${process.env.PORT}${apolloServer.subscriptions}`
   );
 });

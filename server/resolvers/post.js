@@ -5,10 +5,11 @@ const { DateTimeResolver } = require("graphql-scalars");
 const Post = require("../models/post");
 const User = require("../models/user");
 
-// queries
+// subscriptions
+const POST_ADDED = "POST_ADDED";
 
 // mutation
-const postCreate = async (parent, args, { req }) => {
+const postCreate = async (parent, args, { req, pubsub }) => {
   const currentUser = await authCheck(req);
   // validation
   if (args.input.content.trim() === "") throw new Error("Content is required");
@@ -22,6 +23,8 @@ const postCreate = async (parent, args, { req }) => {
   })
     .save()
     .then((post) => post.populate("postedBy", "_id username").execPopulate());
+
+  pubsub.publish(POST_ADDED, { postAdded: newPost });
 
   return newPost;
 };
@@ -90,9 +93,8 @@ const postDelete = async (parent, args, { req }) => {
   return deletedPost;
 };
 
-const totalPosts = async (parent, args) => {
-  return await Post.find({}).estimatedDocumentCount().exec();
-};
+const totalPosts = async (parent, args) =>
+  await Post.find({}).estimatedDocumentCount().exec();
 
 const search = async (parent, { query }) => {
   // const {query} = args;
@@ -103,15 +105,21 @@ const search = async (parent, { query }) => {
 
 module.exports = {
   Query: {
-    search,
-    totalPosts,
     allPosts,
     postsByUser,
     singlePost,
+    totalPosts,
+    search,
   },
   Mutation: {
     postCreate,
     postUpdate,
     postDelete,
+  },
+  Subscription: {
+    postAdded: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator("POST_ADDED"),
+    },
   },
 };

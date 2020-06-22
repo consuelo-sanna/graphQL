@@ -16,14 +16,6 @@ module.exports = gql`
     postedBy: User
   }
 
-  type Query {
-    search(query: String): [Post]
-    totalPosts: Int!
-    allPosts(page: Int): [Post!]!
-    postsByUser: [Post!]!
-    singlePost(postId: String!): Post!
-  }
-
   # questo mi aiuta a scrivere poi su mutations gli input
   input PostCreateInput {
     content: String!
@@ -36,10 +28,24 @@ module.exports = gql`
     image: ImageInput
   }
 
+  # queries
+  type Query {
+    search(query: String): [Post]
+    totalPosts: Int!
+    allPosts(page: Int): [Post!]!
+    postsByUser: [Post!]!
+    singlePost(postId: String!): Post!
+  }
+
   # mutations
   type Mutation {
     postCreate(input: PostCreateInput!): Post!
     postUpdate(input: PostUpdateInput!): Post!
     postDelete(postId: String!): Post!
+  }
+
+  #subscription
+  type Subscription {
+    postAdded: Post
   }
 `;

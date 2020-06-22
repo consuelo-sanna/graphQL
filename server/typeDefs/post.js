@@ -17,6 +17,7 @@ module.exports = gql`
   }
 
   type Query {
+    search(query: String): [Post]
     totalPosts: Int!
     allPosts(page: Int): [Post!]!
     postsByUser: [Post!]!

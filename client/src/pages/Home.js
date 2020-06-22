@@ -5,7 +5,7 @@ import { useQuery, useLazyQuery, useSubscription } from "@apollo/react-hooks";
 import { AuthContext } from "../context/authContext";
 import { useHistory } from "react-router-dom";
 import { GET_ALL_POSTS, TOTAL_POSTS } from "../gql/queries";
-import { POST_ADDED } from "../gql/subscriptions";
+import { POST_ADDED, POST_UPDATED, POST_DELETED } from "../gql/subscriptions";
 import PostCard from "../components/PostCard";
 import PostPagination from "../components/PostPagination";
 import { toast } from "react-toastify";
@@ -16,18 +16,19 @@ const Home = () => {
     variables: { page },
   });
   const { data: postCount } = useQuery(TOTAL_POSTS);
-  // subscription data
+  // subscription > post added
   const { data: newPost } = useSubscription(POST_ADDED, {
     onSubscriptionData: async ({
       client: { cache },
       subscriptionData: { data },
     }) => {
       // console.log(data)
-      // read query from cache
+      // readQuery from cache
       const { allPosts } = cache.readQuery({
         query: GET_ALL_POSTS,
         variables: { page },
       });
+      // console.log(allPosts)
 
       // write back to cache
       cache.writeQuery({
@@ -37,18 +38,59 @@ const Home = () => {
           allPosts: [data.postAdded, ...allPosts],
         },
       });
-
-      // refetch all posts to update UI
+      // refetch all posts to update ui
       fetchPosts({
         variables: { page },
-        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }],
+        refetchQueries: [{ query: GET_ALL_POSTS }],
       });
       // show toast notification
       toast.success("New post!");
     },
   });
-  // useLazyQuery is a hook that returns a function and some data in an object
-  // when use more than one useQuery, they always return in the same variables.. so u can change those name
+
+  // post updated
+  const { data: updatedPost } = useSubscription(POST_UPDATED, {
+    onSubscriptionData: () => {
+      toast.success("Post updated!");
+    },
+  });
+
+  // post deleted
+  const { data: deletedPost } = useSubscription(POST_DELETED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data },
+    }) => {
+      // console.log(data)
+      // readQuery from cache
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+      });
+      // console.log(allPosts)
+
+      let filteredPost = allPosts.filter(
+        (post) => post._id !== data.postDeleted._id
+      );
+
+      // write back to cache
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: filteredPost,
+        },
+      });
+      // refetch all posts to update ui
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS }],
+      });
+      // show toast notification
+      toast.error("Post deleted!");
+    },
+  });
+
   const [fetchPosts, { data: posts }] = useLazyQuery(GET_ALL_POSTS);
   // access context
   const { state, dispatch } = useContext(AuthContext);
@@ -74,9 +116,10 @@ const Home = () => {
             </div>
           ))}
       </div>
+
       <PostPagination page={page} setPage={setPage} postCount={postCount} />
       <hr />
-      provaaaaa {JSON.stringify(newPost)}
+      {JSON.stringify(newPost)}
       <hr />
       {JSON.stringify(state.user)}
       <hr />

@@ -1,12 +1,14 @@
 import React, { useState, useContext } from "react";
 import ApolloClient from "apollo-boost";
 import { gql } from "apollo-boost";
-import { useQuery, useLazyQuery } from "@apollo/react-hooks";
+import { useQuery, useLazyQuery, useSubscription } from "@apollo/react-hooks";
 import { AuthContext } from "../context/authContext";
 import { useHistory } from "react-router-dom";
 import { GET_ALL_POSTS, TOTAL_POSTS } from "../gql/queries";
+import { POST_ADDED } from "../gql/subscriptions";
 import PostCard from "../components/PostCard";
 import PostPagination from "../components/PostPagination";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const [page, setPage] = useState(1);
@@ -14,6 +16,37 @@ const Home = () => {
     variables: { page },
   });
   const { data: postCount } = useQuery(TOTAL_POSTS);
+  // subscription data
+  const { data: newPost } = useSubscription(POST_ADDED, {
+    onSubscriptionData: async ({
+      client: { cache },
+      subscriptionData: { data },
+    }) => {
+      // console.log(data)
+      // read query from cache
+      const { allPosts } = cache.readQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+      });
+
+      // write back to cache
+      cache.writeQuery({
+        query: GET_ALL_POSTS,
+        variables: { page },
+        data: {
+          allPosts: [data.postAdded, ...allPosts],
+        },
+      });
+
+      // refetch all posts to update UI
+      fetchPosts({
+        variables: { page },
+        refetchQueries: [{ query: GET_ALL_POSTS, variables: { page } }],
+      });
+      // show toast notification
+      toast.success("New post!");
+    },
+  });
   // useLazyQuery is a hook that returns a function and some data in an object
   // when use more than one useQuery, they always return in the same variables.. so u can change those name
   const [fetchPosts, { data: posts }] = useLazyQuery(GET_ALL_POSTS);
@@ -41,11 +74,9 @@ const Home = () => {
             </div>
           ))}
       </div>
-
       <PostPagination page={page} setPage={setPage} postCount={postCount} />
-
       <hr />
-      {JSON.stringify(posts)}
+      provaaaaa {JSON.stringify(newPost)}
       <hr />
       {JSON.stringify(state.user)}
       <hr />

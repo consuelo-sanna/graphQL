@@ -4,11 +4,16 @@ import { gql } from "apollo-boost";
 import { useQuery, useLazyQuery } from "@apollo/react-hooks";
 import { AuthContext } from "../context/authContext";
 import { useHistory } from "react-router-dom";
-import { GET_ALL_POSTS } from "../gql/queries";
+import { GET_ALL_POSTS, TOTAL_POSTS } from "../gql/queries";
 import PostCard from "../components/PostCard";
+import PostPagination from "../components/PostPagination";
 
 const Home = () => {
-  const { data, loading, error } = useQuery(GET_ALL_POSTS);
+  const [page, setPage] = useState(1);
+  const { data, loading, error } = useQuery(GET_ALL_POSTS, {
+    variables: { page },
+  });
+  const { data: postCount } = useQuery(TOTAL_POSTS);
   // useLazyQuery is a hook that returns a function and some data in an object
   // when use more than one useQuery, they always return in the same variables.. so u can change those name
   const [fetchPosts, { data: posts }] = useLazyQuery(GET_ALL_POSTS);
@@ -36,14 +41,9 @@ const Home = () => {
             </div>
           ))}
       </div>
-      <div className="row p-5">
-        <button
-          onClick={() => fetchPosts()}
-          className="btn-btn-raised btn-primary"
-        >
-          Fetch posts
-        </button>
-      </div>
+
+      <PostPagination page={page} setPage={setPage} postCount={postCount} />
+
       <hr />
       {JSON.stringify(posts)}
       <hr />

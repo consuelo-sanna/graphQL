@@ -1,7 +1,16 @@
 import React, { useState, useContext } from "react";
 import { Switch, Route } from "react-router-dom";
-import ApolloClient from "apollo-boost";
+// gql
 import { gql } from "apollo-boost";
+import { split } from "apollo-boost";
+import { setContext } from "apollo-link-context";
+import { WebSocketLink } from "apollo-link-ws";
+import { getMainDefinition } from "apollo-utilities";
+// from apollo boost
+// import ApolloClient, { InMemoryCache, HttpLink } from "apollo-boost";
+import ApolloClient from "apollo-client";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { HttpLink } from "apollo-link-http";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { ToastContainer } from "react-toastify";
 // import components
@@ -27,17 +36,62 @@ const App = () => {
   const { state } = useContext(AuthContext);
   const { user } = state;
 
-  // tutte le richieste fatte da questo client a gql hanno il token nell header
-  const client = new ApolloClient({
-    uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-    request: (operation) => {
-      operation.setContext({
-        headers: {
-          authtoken: user ? user.token : "",
-        },
-      });
+  // step for websocket
+  // 1 create websocket link
+  const wsLink = new WebSocketLink({
+    uri: process.env.REACT_APP_GRAPHQL_WS_ENDPOINT,
+    options: {
+      reconnect: true,
     },
   });
+
+  // 2 create http Link
+  const httpLink = new HttpLink({
+    uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+  });
+
+  //3 setContext for authentication
+  const authLink = setContext(() => {
+    return {
+      headers: {
+        authtoken: user ? user.token : "",
+      },
+    };
+  });
+
+  //  4 concat http and authtoken link
+  const httpAuthLink = authLink.concat(httpLink);
+
+  // 5 split in http or authLink dinamically
+  const link = split(
+    ({ query }) => {
+      // split link based on operation type
+      const definition = getMainDefinition(query);
+      return (
+        definition.kind === "OperationDefinition" &&
+        definition.operation === "subscription"
+      );
+    },
+    wsLink,
+    httpAuthLink
+  );
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    link,
+  });
+
+  // tutte le richieste fatte da questo client a gql hanno il token nell header
+  // const client = new ApolloClient({
+  //   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+  //   request: (operation) => {
+  //     operation.setContext({
+  //       headers: {
+  //         authtoken: user ? user.token : "",
+  //       },
+  //     });
+  //   },
+  // });
 
   return (
     <ApolloProvider client={client}>

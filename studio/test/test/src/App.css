@@ -1,0 +1,29 @@
+.App {
+  text-align: center;
+}
+
+h1 {
+  color: red;
+  font-size: 1em;
+}
+
+.titoloVerde {
+  color:green;
+}
+
+#titoloBlue {
+  color: blue;
+}
+
+ol li {
+  color: brown;
+}
+
+ul li {
+  color: orange
+}
+
+.immagine {
+  width:500px;
+  height:600px;
+}

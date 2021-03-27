@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Carousel Demo Page</title>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <!-- <link rel="stylesheet" type="text/css" href="//css/carousel.css">
+        <link rel="stylesheet" type="text/css" href="//css/styles.css"> -->
+        <script type="text/javascript" src="./js/carousel.js" />
+    </head>
+    <body>
+        <h1> Carousel Demo Page </h1>
+        <div id="my-carousel"></div>
+        <div id="my-carousel2"></div>
+        <template>
+            <h1>Hello Rick!</h1>
+        </template>
+        <my-carousel></my-carousel>
+        <script type="text/javascript">
+            var options1 = {
+                container: "my-carousel",
+                title: "Fresh and just uploaded content",
+                subtitle: "test",
+                fetchCards: () => console.log("test"),
+            }
+
+            var carouselObj = new Carousel(options1);
+        </script>
+    </body>
+</html>
